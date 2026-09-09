@@ -1,11 +1,23 @@
 """
-CRED Collections — Analysis Notebook (Python, reasoning-first)
-Run: python solution/analysis_notebook.py
-Reads raw CSVs, reproduces golden + per-day proof + forensics A-G counts.
+CRED Collections — Analysis Notebook, legacy CLI version (superseded by analysis_notebook.ipynb).
+Portable: resolves data/golden dirs relatively (or CRED_DATA_DIR / CRED_OUT_DIR).
+For the narrated deliverable, open analysis_notebook.ipynb.
 """
 import pandas as pd, glob, os
-BASE="/Users/anshumanrauta/Downloads/CRED/collections_30k_dataset (4)"
-SOL="/Users/anshumanrauta/Downloads/CRED/solution/golden"
+from pathlib import Path
+_HERE = Path(__file__).resolve().parent
+def _pick(*cands):
+    for c in cands:
+        if c and Path(c).exists():
+            return str(c)
+    return str(cands[0])
+BASE = _pick(os.environ.get("CRED_DATA_DIR"),
+             _HERE.parent / "collections_30k_dataset (4)",
+             _HERE.parent / "collections_30k_dataset",
+             "/Users/anshumanrauta/Downloads/CRED/collections_30k_dataset (4)")
+SOL = _pick(os.environ.get("CRED_OUT_DIR"),
+            _HERE / "golden",
+            "/Users/anshumanrauta/Downloads/CRED/solution/golden")
 print("== Q1 What happened? raw vs golden vs per-day ==")
 pay=pd.read_csv(f"{BASE}/payments.csv"); pay['event_at']=pd.to_datetime(pay['event_at'], utc=True)
 pay['month']=pay['event_at'].dt.to_period('M').astype(str)
