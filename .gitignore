@@ -1,0 +1,9 @@
+# Raw source data (sibling folder, ~60MB) — not committed; see solution/README.md
+collections_30k_dataset*/
+*.pdf
+.DS_Store
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.opencode/
+tool-output/
