@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CRED Data Analyst Assignment — Detailed Viva Report</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#1e293b;background:#f8fafc;line-height:1.65}
+header.hero{background:#020617;color:#fff;padding:36px 32px}header.hero h1{margin:0;font-size:28px}header.hero p{color:#94a3b8;max-width:1000px}
+nav.toc{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 32px;position:sticky;top:0;z-index:5}nav.toc a{margin-right:14px;font-size:13px;color:#0369a1;text-decoration:none}
+main{max-width:1080px;margin:0 auto;padding:28px 24px 80px}section.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:22px 24px;margin:18px 0}
+h2{margin:0 0 10px;font-size:21px}h3{margin:18px 0 8px;font-size:16px;color:#0f172a}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}th,td{border:1px solid #e2e8f0;padding:8px 10px;text-align:left;vertical-align:top}th{background:#f1f5f9}
+code,pre{background:#0f172a;color:#e2e8f0;border-radius:8px}pre{padding:14px;overflow:auto;font-size:12.5px}code.inline{background:#eef2ff;color:#3730a3;padding:1px 6px;border-radius:6px}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kpi div{background:#f1f5f9;border-radius:10px;padding:10px}.kpi b{font-size:18px}
+.badge{display:inline-block;background:#dcfce7;color:#166534;font-size:12px;padding:2px 10px;border-radius:999px;font-weight:700}
+.badge.red{background:#fee2e2;color:#991b1b}.badge.amber{background:#fef3c7;color:#92400e}
+.alertbox{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 14px;font-size:14px}
+.greenbox{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px;font-size:14px}
+footer{color:#64748b;font-size:12.5px;padding:20px}
+@media(max-width:800px){.kpi{grid-template-columns:1fr 1fr}}
+@media print{nav.toc{display:none}section.card{break-inside:avoid}}
+</style></head><body>
+<header class="hero"><h1>CRED — Data Analyst Assignment: Detailed Viva Report</h1>
+<p><b>Claim under test:</b> “Recovery has improved by 11% month-on-month.” &nbsp;|&nbsp; <b>Verdict:</b> <span class="badge red">FALSE — calendar illusion, true Mar growth +0.29%/day</span> &nbsp; <b>Recommendation:</b> <span class="badge">Invest ₹10 Cr in #4 Targeting as capped experiment (base 3–5% ≈ ₹3.8–6.3Cr/yr; upside 8–12% holdout-gated)</span> <span class="badge amber">REVISED 09-Sep — see Addendum R</span></p>
+<p style="font-size:13px">Methods: <code>Python (pypdf + pdfplumber + pandas)</code> to read the PDF &amp; profile all 17 CSVs &bull; SQL golden pipeline &bull; Per-day normalisation &bull; Forensics A–H (incl. NEW H: priority flat) &bull; DiD counterfactual scaffold &bull; Production design Raw→…→Dashboard. Dataset: <code>/Downloads/CRED/collections_30k_dataset (4)/</code> (Seed 42, Jan–Aug 2026). Outputs: <code>solution/</code>.</p></header>
+<nav class="toc"><a href="#sr">R Addendum</a><a href="#s0">0 Python-PDF</a><a href="#s1">1 Assignment</a><a href="#s2">2 Due diligence</a><a href="#s3">3 Golden</a><a href="#s4">4 Forensics A–H (incl. NEW H: priority flat)</a><a href="#s5">5 Statistics</a><a href="#s6">6 Metrics</a><a href="#s7">7 Counterfactual</a><a href="#s8">8 Production</a><a href="#s9">9 ₹10 Cr</a><a href="#s10">10 Files</a><a href="#s11">11 Viva Q&A</a></nav>
+<main>
+
+<section class="card" id="sr" style="border:2px solid #f59e0b"><h2>R — Review addendum (09-Sep): what the critique found and what changed</h2>
+<div class="alertbox"><b>Reviewer was right on the weakest link:</b> the 8–12% lift / ₹6–9Cr / 5–7× ROI was <b>asserted, not derived</b>. Pulling the data overturns the “6,656 untouched = fruit” framing and forces a rework. All numbers below are Python-derived in this session (see <code class="inline">solution/golden/stratified_uplift.json</code>, <code class="inline">feb_mar_test.json</code>, <code class="inline">daily_recovery.csv</code>).</div>
+<h3>R1 — Never-targeted convert HIGHER raw (critique confirmed)</h3>
+<p>Golden Jan–Jul ever-paid: never-targeted <b>2,908/6,656 = 43.69%</b> vs targeted <b>10,049/23,344 = 43.05%</b> (diff <b>−0.64pp</b> targeted-minus-never, <code class="inline">z=−0.93, p=0.35</code>, 95% Newcombe CI <b>[−2.00pp, +0.70pp]</b>). DPD×risk inverse-variance (Mantel-Haenszel-style) adjusted diff <b>−0.65pp, SE 0.69pp, CI [−2.00pp, +0.70pp]</b> — identical, so mix does not rescue the story. Stratum details: targeted wins only in 31–60 DPD (+1.3pp) and HIGH/LOW risk (+1.1/+1.3pp); never wins in 0–30 (+0.8pp), 61–90 (+0.9pp), 90+ (+2.0pp), MEDIUM (+1.4pp), NPA (+3.6pp; NPA 90+ +8.8pp). <b>Verdict: zero measured lift for current targeting; raw “untapped” comparison does not support fruit framing.</b> Logic: <code class="inline">ever_paid = account in golden SUCCESS Jan–Jul</code>; groups = <code class="inline">account_id in daily_targeting</code>; test = two-proportion z + 16-stratum IV-weighted.</p>
+<h3>R2 — Priority is flat (Forensic H, NEW — stronger honest argument)</h3>
+<p>Priority 1–10 (n≈4.4–4.6k each) → 7-day SUCCESS conversion (any golden payment 0–7d post-target, same account): <b>1.56–2.16%, no monotonic trend; χ²=10.07, p=0.345</b>; 30-day 6.65–7.56% also flat; overall 7d 1.83%. <b>Current scoring has no discriminative power.</b> This <i>strengthens</i> the rebuild case (scoring is broken) while <i>removing</i> any basis for assuming a new score yields 8–12% specifically. Added as <b>Forensic H</b> in §4 and T4.</p>
+<h3>R3 — Formal test for “no MoM growth” (makes FACT defensible)</h3>
+<p>Daily golden means: Feb n=28, ₹6.076M/d (sd 0.73M); Mar n=31, ₹6.094M/d (sd 0.84M); obs diff +₹17.4k (+0.29%). <b>Welch t=0.085, p=0.932; permutation (B=20k) p=0.931; bootstrap 95% CI [−₹370k, +₹411k] = [−6.09%, +6.77%]</b> — not distinguishable from zero. Null 95% interval [−₹393k, +₹401k] contains obs. <b>Say “flat, p≈0.93” not just “+0.29%”.</b></p>
+<h3>R4 — Costs and 50% volume are assumptions (now flagged)</h3>
+<p><b>₹1.2Cr</b> = commercial estimate (~₹0.8Cr scoring + ~₹0.4Cr rollout), <b>50% volume</b> = holdout design split — neither measured in dataset. Memo §3–§5, dashboard footer/T6, and §9 now label these <b>ASSUMPTION / DESIGN CHOICE</b> with scenario table, never same weight as per-day truth. Pessimistic (0% lift, empirical) → lose capped ₹1.2Cr; base (3–5% relative, assumption) → ₹3.8–6.3Cr/yr, 2–4× net, BE 3–5mo; upside (8–12%) → ₹10–15Cr/yr, 7–12×, holdout-gated only. Retired single-point “₹6–9Cr / 5–7× / 65%”.</p>
+<h3>R5 — Confidence separation (visual fix)</h3>
+<p>Solid tiles T1–T5 = HIGH arithmetic; <b>dashed T6 = LOW hypothesis (requires holdout)</b>. Memo §3 split into HIGH vs LOW lists; dashboard footer states the rule. Panel line: <i>“High on flat (p≈0.93, p≈0.35, p≈0.35); low on any pre-holdout lift — which is why the A/B is the recommendation, not the ROI number.”</i></p>
+<p style="font-size:13px">Repro: <code class="inline">solution/analysis_notebook.py</code> + new <code class="inline">solution/golden/*.json/csv</code>; SQL unchanged (scaffold already supports DiD/PSM); memo + dashboard patched in place.</p></section>
+
+
+<section class="card" id="s0"><h2>0 — How the PDF was read with Python (as required)</h2>
+<p>The brief explicitly required Python for PDF reading, so no manual copy-paste was used. Two libraries were tried; <code class="inline">pypdf</code> split words line-by-line (10 pages, ~7k chars but fragmented), so <code class="inline">pdfplumber</code> was used for clean extraction. Logic: open PDF → per-page <code class="inline">extract_text()</code> → print + verify 10 pages → parse into Q1–Q4 / Parts 1–5 / deliverables. This guarantees the viva claim “I read it with Python” is literally reproducible.</p>
+<pre>from pypdf import PdfReader
+reader = PdfReader("/Users/anshumanrauta/Downloads/CRED/Data Analyst - Assignment (2).pdf")
+print(len(reader.pages))  # 10
+# then with pdfplumber for clean text:
+import pdfplumber
+with pdfplumber.open(pdf_path) as pdf:
+    for i, page in enumerate(pdf.pages):
+        print(f"===== PAGE {i+1} =====")
+        print(page.extract_text())</pre>
+<p><b>Result:</b> 10 pages recovered: P1 objective + 11% claim, P2–P3 four missions + ₹10 Cr six options, P4 data + traps, P5 golden + forensics A–D, P6 E–G + stats + counterfactual stem, P7 counterfactual + production pipeline, P8 deliverables 1–4, P9 dashboard + memo + architecture, P10 file list. Producer <code class="inline">Skia/PDF m154 Google Docs Renderer</code>, Title “Data Analyst - Assignment”.</p></section>
+
+<section class="card" id="s1"><h2>1 — Assignment analysis (what they really test)</h2>
+<h3>Four missions (not tasks — investigations)</h3>
+<table><tr><th>#</th><th>Question</th><th>What “good” means + trap</th></tr>
+<tr><td>1</td><td><b>What happened?</b> Reconstruct 12-month performance: when/what/where changed, which metrics genuinely improve vs mislead.</td><td>Must normalise for calendar + mix; raw MoM is the trap.</td></tr>
+<tr><td>2</td><td><b>Why?</b> Drivers across ≥ portfolio, DPD, client, geo, language, agent, tenure, campaign, channel, vendor, calling time, attempt frequency, segment. Classify Fact / Strong Evidence / Correlation / Hypothesis.</td><td>Correlation ≠ causation; language column doesn't exist (must say so).</td></tr>
+<tr><td>3</td><td><b>Is 11% real?</b> Independent definitions of contact, RPC, PTP rate/kept, recovery rate, per-account, per-agent-hour, cost/₹, channel conversion + prove/quantify.</td><td>Must challenge existing definitions, not reuse them.</td></tr>
+<tr><td>4</td><td><b>Where to invest ₹10 Cr?</b> Pick ONE of 6 (telephony / agents / AI voice / targeting / WhatsApp / field) with incremental recovery, cost, ROI, break-even, assumptions, downside, confidence — or honestly say data insufficient + what experiment is needed.</td><td>Single-bet discipline; downside + experiment required.</td></tr></table>
+<h3>Five parts (pipeline they grade)</h3>
+<table><tr><th>Part</th><th>Demand</th><th>Logic behind our approach</th></tr>
+<tr><td>1 Golden dataset</td><td>Source-of-truth, entity resolution, dedup, missing/timestamp/payment-attribution, history, exclusions, DQ, assumptions; show Raw→Rejected→Golden + impact.</td><td>Cheapest table is not truest; PK-anchored dedup + IST normalisation + SUCCESS-only money.</td></tr>
+<tr><td>2 Forensics A–H (incl. NEW H: priority flat)</td><td>Dup payments, attribution, timezone, vendor mapping, agent identity, portfolio mix, denominator manipulation.</td><td>Prove each with counts; don't assume which exist.</td></tr>
+<tr><td>3 Statistics</td><td>Mix, cohort, selection, survivorship, Simpson's, attribution-window, time-series. Simple transparent &gt; complex ML.</td><td>Per-day + per-row + stratified tables beat models.</td></tr>
+<tr><td>4 Counterfactual</td><td>“What if targeting hadn't changed midway?” Treatment/control, assumptions, confounders, ID strategy, limits. Reasoning &gt; complexity.</td><td>DiD + matching scaffold; honest that strategy mix looks stable so power is limited.</td></tr>
+<tr><td>5 Production</td><td>Raw→Staging→Clean→Golden→Feature→Metrics→Dashboard + contracts, PKs, lineage, incremental, late data, backfills, DQ, monitoring, anomaly detection.</td><td>Design so the +11% bug pages instead of ships.</td></tr></table>
+<h3>Seven deliverables mapped</h3>
+<p>SQL repo (<code class="inline">solution/sql/01–03</code>) · Notebook/pipeline (<code class="inline">solution/golden/</code> + this report) · Golden dataset (<code class="inline">golden_payments/calls/borrowers/agents.csv + monthly_kpi.csv</code>) · DQ report (§4) · Dashboard (<code class="inline">solution/dashboard.html</code>, one screen, 60-sec CEO read) · Memo (<code class="inline">solution/memo.md</code>, 2 pages) · Architecture (<code class="inline">solution/architecture.md + .mmd</code>). Depth &gt; volume; 72-hour guidance.</p></section>
+
+<section class="card" id="s2"><h2>2 — Due diligence on the dataset (subfolder)</h2>
+<p>Folder <code class="inline">collections_30k_dataset (4)/</code> holds 18 data CSVs + <code class="inline">README.md</code> (Seed 42) + <code class="inline">data_dictionary.csv</code> (144 rows, column→dtype map). README warns of all 12 traps — verified each with <code class="inline">pandas</code> (row counts, <code class="inline">duplicated()</code>, <code class="inline">isna()</code>, UTC parsing, value_counts, lag analysis). Period Jan 1–Aug 8 2026 (Aug partial — must exclude from MoM).</p>
+<div class="kpi"><div><b>~640k</b><br>total rows (largest: call_attempts 120k, calls 91k, whatsapp 60.6k)</div><div><b>17</b><br>relational tables + dictionary</div><div><b>3</b><br>timezones (UTC / Kolkata / Dubai)</div><div><b>Aug 8</b><br>cutoff — partial month</div></div>
+<table><tr><th>Table</th><th>Rows (PK uniq)</th><th>Key finding → treatment</th></tr>
+<tr><td>borrowers</td><td>30,600 (11,015)</td><td>Same ID, different name/phone/email; 50.18% updated&lt;created; 1,204 phone + 15,222 email collisions → <b>keep earliest created_at per ID</b></td></tr>
+<tr><td>accounts</td><td>30,000 (30,000)</td><td>455 null borrower_id; 2,458 orphan borrower_ids; DPD 0–180 (mean 56.5); 4 loan×4 risk balanced → <b>quarantine orphans, bucket DPD</b></td></tr>
+<tr><td>agents</td><td>30,000 (1,000)</td><td>~30 snapshots/agent; 10 names only; 1,099 employee_codes → <b>resolve on agent_id, MIN(joined) as tenure</b></td></tr>
+<tr><td>agent_sessions</td><td>15,000</td><td>76,187 hrs Jan–Jul → <b>₹16,649 recovery/hr denominator</b></td></tr>
+<tr><td>campaigns</td><td>120</td><td>5 names × 5 channels × 4 versions (legacy 37/v3 32/v2 27/v1 24); same name≠same channel (e.g. DIGITAL_FOLLOWUP=FIELD) → <b>join on campaign_id only</b></td></tr>
+<tr><td>daily_targeting</td><td>45,000 (45,000)</td><td>23,344 accts targeted; <b>6,656 never targeted</b> (selection bias); Feb 5,709 → Mar 6,290 rows</td></tr>
+<tr><td>calls</td><td>91,350 (90,000)</td><td>1,271 full + 1,350 ID dups; 1,827 null agents; 1 row Dec 2025 → <b>dedup keep-first, IST bucketing</b></td></tr>
+<tr><td>call_attempts</td><td>120,000</td><td>2,400 null vendor_id; 5 statuses ~20% each; all call_ids link → <b>attempts/targeted ≈2.6–2.7 stable</b></td></tr>
+<tr><td>call_dispositions</td><td>35,000</td><td>9 codes × 3 versions, shares flat → <b>no code-change event</b>; PROMISE_TO_PAY vs PTP both present (legacy debt)</td></tr>
+<tr><td>whatsapp_events</td><td>60,600 (60,000)</td><td>600 full dups; 6 event types ~16–17% each, flat → <b>dedup, no channel lift</b></td></tr>
+<tr><td>sms_events</td><td>45,000</td><td>4 types flat → <b>no SMS lift</b></td></tr>
+<tr><td>field_visits</td><td>25,000</td><td>250 null scheduled_at; 6 outcomes; <b>PAID 16.32%</b> (~6 visits/PAID)</td></tr>
+<tr><td>promises_to_pay</td><td>18,000</td><td>BROKEN 4,553 / CANCELLED 4,543 / KEPT 4,489 / OPEN 4,415; <b>4,128 OPEN past due (93.5% stale)</b></td></tr>
+<tr><td>payments</td><td>25,500 (25,000)</td><td>486 full + 500 ID + <b>4,297 TXN-reuse</b> + 382 null refs; SUCCESS 17,880 → <b>golden 17,534</b></td></tr>
+<tr><td>vendor_telephony</td><td>15</td><td>5 vendors × 3 tz × 3 schemas; 9 INACTIVE → <b>answer spread only 19.25–21.14%</b></td></tr>
+<tr><td>complaints</td><td>8,000</td><td>7 types flat; OPEN 2,096 (backlog) → <b>AI-voice risk flag</b></td></tr>
+<tr><td>account_status_history</td><td>60,000</td><td><b>30,191 recorded&lt;event</b> (clock skew); 7 statuses → <b>order by event_at</b></td></tr></table>
+<div class="alertbox"><b>Assumptions stated for viva:</b> timestamps stored as UTC strings (normalise to IST for day/hour); payment amount already in ₹; agent-hour costed separately for ROI; no language column exists so language driver is <b>untestable</b> (must say so rather than invent).</div></section>
+
+<section class="card" id="s3"><h2>3 — Golden dataset (source-of-truth + impact)</h2>
+<table><tr><th>Decision</th><th>Rule (why)</th><th>Impact quantified</th></tr>
+<tr><td><b>Money</b></td><td>DROP 486 full-row dups → KEEP first <code class="inline">payment_id</code>; IGNORE <code class="inline">payment_reference</code> (4,297 reuses across accts/amounts); count ONLY <code class="inline">SUCCESS</code> (exclude FAILED/PENDING/REVERSED).</td><td>17,880 → <b>17,534 (−346, −1.94%, ~₹2.9 Cr)</b>. Raw overstates YTD.</td></tr>
+<tr><td><b>Effort</b></td><td>DROP 1,271 full + keep-first 1,350 <code class="inline">call_id</code>; KEEP 1,827 null-agent rows but exclude from agent denominators; <code class="inline">AT TIME ZONE 'Asia/Kolkata'</code> for day/hour.</td><td>91,350 → <b>90,000</b>; answered rate unchanged 19–20% (dedup doesn't create growth).</td></tr>
+<tr><td><b>Entities</b></td><td>borrowers 30,600 → <b>11,015</b> keep-earliest <code class="inline">created_at</code>; agents 30,000 → <b>1,000</b> keep-MIN(<code class="inline">joined_at</code>); history ordered by <code class="inline">event_at</code> (ignore 30,191 inversions).</td><td>Prevents 3× borrower inflation + 30× agent inflation.</td></tr>
+<tr><td><b>Promises</b></td><td>Status flag untrusted → KEPT only with SUCCESS cash in [promised−1d, +7d].</td><td>Reported ~25% kept → <b>validated kept lower</b>; 4,128 stale OPENs quarantined.</td></tr>
+<tr><td><b>Exclusions</b></td><td>Exclude Aug (partial to Aug 8), Dec-2025 singleton call, orphan-FK accounts, null-ref payments from attribution; 6,656 never-targeted kept as explicit control (not dropped silently).</td><td>MoM guard: Aug −74% raw is truncation, not collapse.</td></tr></table>
+<div class="greenbox"><b>Headline guard (memorise):</b> Feb→Mar raw +11.03% (deduped) → per-day +0.29%. The 31/28 calendar factor alone predicts +10.7% (31/28−1); observed +11.03% leaves only +0.3pp real. Targeting +10.2% volume explains the rest. <b>Golden Jan–Jul total ≈ ₹126.8 Cr; recovery/agent-hour ₹16,649.</b></div>
+<pre> -- Golden money rule (Postgres, solution/sql/01_golden_cleaning.sql)
+WITH dedup AS (
+  SELECT DISTINCT * FROM staging.payments
+),
+ranked AS (
+  SELECT *, ROW_NUMBER() OVER (PARTITION BY payment_id ORDER BY event_at) AS rn
+  FROM dedup
+)
+SELECT * INTO golden.fact_payment FROM ranked
+WHERE rn = 1 AND payment_status = 'SUCCESS';  -- PENDING/FAILED/REVERSED excluded
+-- Day/hour truth:
+SELECT (event_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date AS event_date_ist ...</pre></section>
+
+<section class="card" id="s4"><h2>4 — Data forensics A–G (detection → verdict)</h2>
+<table><tr><th>ID</th><th>Test (Python logic)</th><th>Evidence</th><th>Verdict</th></tr>
+<tr><td><b>A Dup payments</b></td><td><code class="inline">duplicated(payment_id/full/TXN)</code> + same-acct-amt-date groups</td><td>500 ID dups, 486 full dups, 4,297 TXN reuses (e.g. TXN0000000032 on 3 accts/amounts), 346 same-day same-amt pairs, 382 null refs</td><td><b>EXISTS — material (−₹2.9 Cr) but doesn't create MoM</b> (deduped Mar still +11.03%)</td></tr>
+<tr><td><b>B Attribution</b></td><td>TXN reuse across accts + last-campaign join check</td><td>Same TXN on different accounts proves reference ≠ unique key; naive last-touch over-credits latest campaign</td><td><b>RISK EXISTS</b> — use payment_id + 7-day contact window, not last-touch</td></tr>
+<tr><td><b>C Timezone</b></td><td>Hour dist by tz label; vendor-tz × call-tz crosstab; IST vs UTC hour</td><td>3 labels ~33% each; vendor×call uniform (~14.2k/16.3k); UTC vs IST hours uniform 15.0–15.3k/bin (no shift bug in stored strings)</td><td><b>NO MoM distortion</b> after IST normalisation — but pipeline must enforce it</td></tr>
+<tr><td><b>D Vendor mapping</b></td><td><code class="inline">crosstab(month, disposition_version)</code> + code×version</td><td>legacy/v1/v2 ~33% every month; all 9 codes in all versions</td><td><b>NO CHANGE</b> — rules out definition shift</td></tr>
+<tr><td><b>E Agent identity</b></td><td><code class="inline">nunique(agent_id/employee_code/name)</code> + per-ID joined variance</td><td>1,000 IDs / 1,099 codes / 10 names; 14–48 join dates per ID (mean 30); EMP00001 on 10+ IDs</td><td><b>EXISTS — SCD snapshots</b>; tenure = MIN(joined); never group by name</td></tr>
+<tr><td><b>F Portfolio mix</b></td><td>opened_at histogram; DPD/risk/loan by month; targeting definition share</td><td>Opened flat ~1.2–1.4k/mo; schemas flat; BUT Mar fresh DPD 0–30 ₹73.6M→₹89.5M (+21.6%); NPA 7,402 present</td><td><b>EXISTS — easy-mix flattered Mar</b></td></tr>
+<tr><td><b>G Denominator</b></td><td>Targeted uniq vs accounts; never-targeted count</td><td>23,344 / 30,000 targeted; <b>6,656 (22%) never targeted</b>; reported conversion overstates coverage</td><td><b>EXISTS — selection bias</b>; report per-targeted AND per-eligible</td></tr></table>
+<p>Bonus forensics: borrowers 50.18% updated&lt;created + ID collisions; history 50.3% recorded&lt;event; PTP 93.5% stale OPENs; attempts/targeted 2.6–2.7 flat; vendor answer 19.25–21.14% (max +1.9pp); complaints flat (~1.1k/mo) with OPEN backlog 2,096.</p></section>
+
+<section class="card" id="s5"><h2>5 — Statistical investigation (is improvement operational?)</h2>
+<table><tr><th>Effect</th><th>Method (simple, transparent)</th><th>Result → classification</th></tr>
+<tr><td><b>Time-series (calendar)</b></td><td>per-day = total / days_in_month + Welch/permutation/bootstrap on daily means</td><td>Raw +11.03% → <b>per-day +0.29%, t=0.085 p=0.93, perm p=0.93, boot CI [−6.1%,+6.8%]</b>; Apr −4.20%/day; Jul +3.21%/day → <b>FACT (tested): indistinguishable from zero</b></td></tr>
+<tr><td><b>Mix</b></td><td>Stratify recovery by DPD/risk/loan/state; targeting definition share</td><td>Mar lift concentrated 0–30 (+21.6%); risk/loan/state flat; targeting shares flat → <b>STRONG EVIDENCE: easy-mix, not skill</b></td></tr>
+<tr><td><b>Cohort</b></td><td>opened_at month cohorts; PTP creation-month kept mix</td><td>Opened cohorts flat; PTP kept 24–27% every creation month → <b>FACT: no cohort lift</b></td></tr>
+<tr><td><b>Selection bias</b></td><td>Targeted vs never-targeted (6,656); priority means</td><td>22% never touched; priority means 5.46–5.57 flat → <b>STRONG EVIDENCE: targeted pool selected, not random</b></td></tr>
+<tr><td><b>Survivorship</b></td><td>OPEN PTPs past due; status_history PAID/CLOSED vs ACTIVE</td><td>4,128/4,415 OPENs stale; PAID/CLOSED linger as “successes” → <b>STRONG EVIDENCE: stale successes inflate kept</b></td></tr>
+<tr><td><b>Simpson's</b></td><td>Overall +11% vs per-DPD / per-row splits</td><td>Overall up, per-row +0.8%, per-day +0.29%, all funnel rates flat → <b>FACT: aggregate reverses on stratification</b></td></tr>
+<tr><td><b>Attribution-window</b></td><td>Vary payment↔contact window (same-day vs 7-day vs 30-day)</td><td>Last-touch/30-day over-credits Mar (more rows → more accidental matches) → <b>CORRELATION: window choice moves “lift” ±3pp</b>; fix 7-day</td></tr></table>
+<div class="kpi"><div><b>+11.03%</b><br>Mar raw (deduped)</div><div><b>+0.29%</b><br>Mar per-day (truth)</div><div><b>+0.8%</b><br>Mar per-row (truth)</div><div><b>19–20% / ~25%</b><br>Contact / PTP-kept flat</div></div>
+<p><b>March arithmetic for viva:</b> Feb ₹170.14M/28 = ₹6.076M/day; Mar ₹188.91M/31 = ₹6.094M/day → +0.29%. Rows 5,709→6,290 (+10.2%); ₹/row ₹29,802→₹30,033 (+0.8%). Efficiency didn't move; volume + calendar did.</p></section>
+
+<section class="card" id="s6"><h2>6 — Independent metric definitions (why ours)</h2>
+<table><tr><th>Metric</th><th>Golden definition</th><th>Naive trap it fixes</th></tr>
+<tr><td>Contact rate</td><td>ANSWERED / deduped calls (IST day)</td><td>Raw calls double-count 1,350 ID dups; UTC day mis-buckets Dubai/Kolkata nights</td></tr>
+<tr><td>RPC</td><td>Distinct RPC dispositions (PTP/PROMISE_TO_PAY/PAID/CALLBACK) / connects</td><td>Lumping NO_CONTACT/WRONG_NUMBER as “contact” inflates RPC</td></tr>
+<tr><td>PTP rate</td><td>PTP dispositions / RPC</td><td>Counting duplicate PTP rows per call</td></tr>
+<tr><td>PTP kept</td><td>Validated: SUCCESS within +7d of promised_date / due PTPs</td><td>Status flag (93.5% stale OPENs) overstates kept by ~2×</td></tr>
+<tr><td>Recovery rate</td><td>Golden SUCCESS ₹ / eligible outstanding ₹ (per-day)</td><td>Raw SUCCESS ₹ / targeted ₹ (hides 6,656 never-targeted + calendar)</td></tr>
+<tr><td>Recovery / account</td><td>Golden SUCCESS / eligible accounts</td><td>Per-targeted only (denominator gaming)</td></tr>
+<tr><td>Recovery / agent-hour</td><td>Golden SUCCESS / SUM(logout−login) hrs = <b>₹16,649</b></td><td>Headcount denominator (ignores part-time/suspensions)</td></tr>
+<tr><td>Cost / ₹ recovered</td><td>Channel cost / golden SUCCESS (field ≈ ₹500–800/visit vs tele ≈ ₹3–5/connect)</td><td>Blended cost hides field's ~6 visits/PAID</td></tr>
+<tr><td>Channel conversion</td><td>PAYMENT_CLICK|CLICKED → SUCCESS within 7d / delivered</td><td>Last-touch credits WhatsApp for organic payments</td></tr></table>
+<p>SQL: <code class="inline">solution/sql/02_metrics.sql</code> builds <code class="inline">golden.monthly_kpi</code> (per-day + per-row enforced). Full monthly KPI in <code class="inline">solution/golden/monthly_kpi.csv</code>.</p></section>
+
+<section class="card" id="s7"><h2>7 — Counterfactual: “What if targeting hadn't changed midway?”</h2>
+<p><b>Design (credit for reasoning, not complexity):</b> Treatment = accounts first targeted under post-March logic (v2/v3-heavy or PROMISE_BROKEN/HIGH_RISK definitions if cutover dated from <code class="inline">campaigns.start_at</code>); Control = matched accounts retained on legacy logic or never-targeted eligibles. Match on DPD bucket, outstanding decile, risk, loan_type, state, prior-contact count (propensity score, caliper 0.05). Estimate via <b>Difference-in-Differences</b>: (Treat_post − Treat_pre) − (Control_post − Control_pre) on per-day recovery + kept rate, with parallel-trends plot pre-cutover.</p>
+<table><tr><th>Element</th><th>Our choice</th></tr>
+<tr><td>Treatment / Control</td><td>New-targeting accounts vs propensity-matched legacy/never-targeted accounts (holdout if run prospectively)</td></tr>
+<tr><td>Assumptions</td><td>Parallel trends; no spillover (SUTVA); cutover date exogenous; 7-day attribution window correct</td></tr>
+<tr><td>Confounders</td><td>Calendar length, DPD mix, agent tenure (MIN-joined), vendor, calling hour (IST), attempt frequency, seasonality</td></tr>
+<tr><td>ID strategy</td><td>DiD + PSM; sensitivity to window (3/7/14d) + placebo cutover (Feb) falsification</td></tr>
+<tr><td>Limitations</td><td>Strategy shares look <b>stable</b> (legacy ~31% all months) → weak first stage / low power; TXN-reuse + stale PTP add measurement error; 6,656 never-targeted differ unobservably → bound with Rosenbaum + state honest CI</td></tr></table>
+<div class="greenbox"><b>EXECUTED 09-Sep (run_analysis.py &#8594; counterfactual_did.json):</b> Mar cutover (v2/v3 vs legacy/v1-only), pre Jan-Feb / post Apr-May, 1:1 PSM caliper 0.05 &#8594; <b>2717 pairs</b> (treat pool 2949, control 2717). Treat 14.39%&#8594;14.06%; control 14.76%&#8594;15.72%. <b>DiD -1.29pp, 95% CI [-4.01pp, +1.40pp]</b> (rel -8.8%). Parallel Jan&#8594;Feb: treat -1.22pp vs control -0.52pp. Balance |SMD| &#8804; 0.04. <b>Executed-but-weak: CI spans zero, negative point — no cleanly identified lift.</b> Spec: <code class="inline">solution/sql/05_counterfactual_executed.sql</code>.</div>
+<p><b>What to tell the panel:</b> with current data the counterfactual is <i>methodology + negative result</i> (no sharp midway shift to exploit) — which is why the ₹10 Cr recommendation mandates a <b>prospective 50/50 A/B holdout (8–12 weeks)</b> before scale-up. Scaffold in <code class="inline">solution/sql/03_analysis.sql</code> §Q4.</p></section>
+
+<section class="card" id="s8"><h2>8 — Production analytics design (Raw→Dashboard)</h2>
+<pre>Sources (vendors/tele/app/field) → RAW (immutable, ingest_date)
+→ STAGING (typed, IST event_date) → CLEAN (dedup PK, FK-valid)
+→ GOLDEN (dims/facts) → FEATURE (account-day) → METRICS (daily_kpi) → DASHBOARD (per-day + adjusted-MoM)</pre>
+<table><tr><th>Concern</th><th>Design (one line + rationale)</th></tr>
+<tr><td>Contracts / PKs</td><td>payments(payment_id, SUCCESS-preferring TXN map), calls(call_id), borrowers(borrower_id earliest), agents(agent_id MIN-joined), targeting UNIQUE(account_id,target_date); TZ→IST enforced, naive rejected</td></tr>
+<tr><td>Lineage</td><td>Every KPI traces to a PK: RAW→…→FEATURE.account_day→METRICS.daily_kpi; stale-PTP 7-day join rule versioned</td></tr>
+<tr><td>Incremental</td><td>MERGE on PK scoped to event_date; watermark max(event_at_ist)−2d; partition-pruned</td></tr>
+<tr><td>Late data</td><td>3-day re-state window on recorded_at vs event_at (telephony lag); restate affected METRICS partitions</td></tr>
+<tr><td>Backfills</td><td>Idempotent full-partition DELETE→INSERT; never row-patch (safe replay of dup/tz fixes)</td></tr>
+<tr><td>DQ checks</td><td>dup-PK=0, null FK=0, naive-tz=0, orphan FK&lt;0.1%, lag&lt;26h — each maps to a synthetic mess found</td></tr>
+<tr><td>Monitoring / anomaly</td><td>per-day recovery z-score (|z|&gt;3 page); −20% WoW volume-drop alert; flat-rate guard (rates ±1pp while volume spikes → flag “targeting-driven growth”)</td></tr></table>
+<p>Files: <code class="inline">solution/architecture.md + architecture.mmd</code> (flowchart TD, 33 lines). Stack: one warehouse (BigQuery/Snowflake, event_date-partitioned) + Dagster/Airflow daily 02:00 IST + dbt-SQL; dev on Postgres/DuckDB; serve via warehouse view to Metabase/Looker. This design makes the Feb→Mar bug <b>unshippable</b> (per-day KPI + lineage + flat-rate guard).</p></section>
+
+<section class="card" id="s9"><h2>9 — Where to invest ₹10 Cr? → #4 Better borrower targeting (REVISED: capped experiment, scenario ROI)</h2>
+<table><tr><th>Option</th><th>Why not (one line, data-backed)</th></tr>
+<tr><td>1 Telephony infra</td><td>Vendor spread only 19.25→21.14% (+1.9pp); flat over time; high capex, ~10% relative max</td></tr>
+<tr><td>2 More agents</td><td>Linear + hiring lag; ₹16,649/hr already efficient; flat funnel says constraint isn't headcount</td></tr>
+<tr><td>3 AI voice</td><td>Unproven uplift + complaint backlog (8k, OPEN 2,096, harassment/DND) → brand risk without experiment</td></tr>
+<tr><td><b>4 Targeting ✓ (REVISED)</b></td><td><b>Only lever addressing proven zero-signal scoring (H, p=0.345) + zero stratified lift (−0.65pp, p=0.35) + stale PTPs; capped experiment, NOT proven fruit</b></td></tr>
+<tr><td>5 WhatsApp/digital</td><td>Already 60k events, shares flat; saturated without scoring</td></tr>
+<tr><td>6 Field</td><td>16.32% PAID at ~6 visits/PAID; highest cost/₹; hold as benchmark</td></tr></table>
+<table><tr><th>Item</th><th>Value</th><th>Status</th></tr>
+<tr><td>Empirical lift (current targeting, DPD×risk stratified)</td><td><b>−0.65pp (≈ −1.5% relative), 95% CI [−2.00pp, +0.70pp], p=0.35</b>; raw −0.64pp same CI</td><td><b>HIGH — measured (≈ zero)</b></td></tr>
+<tr><td>Priority discrimination (H)</td><td><b>7d 1.56–2.16% flat, χ² p=0.345; 30d 6.65–7.56% flat</b></td><td><b>HIGH — no signal</b></td></tr>
+<tr><td>Scenario pessimistic (holdout fails)</td><td><b>₹0 incremental; ROI −1× (lose capped ₹1.2Cr)</b></td><td>Gated by holdout</td></tr>
+<tr><td>Scenario base (new-score 3–5% relative)</td><td><b>≈ ₹3.8–6.3 Cr/yr on ₹126.8Cr base; net ROI ≈ 2–4×; BE 3–5 mo</b></td><td><b>ASSUMPTION — requires holdout</b></td></tr>
+<tr><td>Scenario upside (8–12% relative, retired as base)</td><td><b>≈ ₹10–15 Cr/yr; 7–12×; BE 1–2 mo</b></td><td><b>UPSIDE ONLY</b></td></tr>
+<tr><td>Cost</td><td><b>~₹1.2 Cr</b> (~₹0.8Cr scoring + ~₹0.4Cr rollout)</td><td><b>ASSUMPTION, not measurement</b></td></tr>
+<tr><td>50% volume</td><td>Holdout split (50% new / 50% current, 8–12 wks)</td><td><b>DESIGN CHOICE</b></td></tr>
+<tr><td>Downside / kill-switch</td><td><b>Capped at ₹1.2Cr; stop if &lt;3% relative at 4-wk interim</b></td><td>By design</td></tr>
+<tr><td>Confidence</td><td><b>High on flat; low on any pre-holdout lift</b></td><td>See §R + memo §3</td></tr></table>
+<p><b>Panel line:</b> prior single-point “₹6–9Cr / 5–7× / 65%” (asserted 8–12%) is <b>retired</b> — replaced by scenarios above per review. <b>Required experiment:</b> 50/50 randomised holdout 8–12 weeks, primary = per-day recovery + validated kept; falsification = placebo cutover + 3/7/14d window sensitivity. If asked “is data sufficient for ROI today?” answer: <b>no for lift — yes for flat + capped experiment</b> (brief rewards this honesty).</p></section>
+
+<section class="card" id="s10"><h2>10 — File manifest (what to open in viva)</h2>
+<table><tr><th>File</th><th>Purpose (one line)</th></tr>
+<tr><td><code>solution/dashboard.html</code></td><td>CEO one-screen (6 tiles + 2 Chart.js charts + stale-PTP alert) — open live</td></tr>
+<tr><td><code>solution/memo.md</code></td><td>2-page executive memo (What/Why/Confidence/Do/₹ impact)</td></tr>
+<tr><td><code>solution/dashboard_spec.md</code></td><td>Dashboard spec with exact tile definitions</td></tr>
+<tr><td><code>solution/architecture.md + .mmd</code></td><td>Production design + Mermaid flowchart</td></tr>
+<tr><td><code>solution/sql/01_golden_cleaning.sql</code></td><td>Staging→Clean→Golden (381 lines, PK + IST + quarantine)</td></tr>
+<tr><td><code>solution/sql/02_metrics.sql</code></td><td>9 metric definitions + monthly_kpi mart (259 lines)</td></tr>
+<tr><td><code>solution/sql/03_analysis.sql</code></td><td>Q1–Q4 analysis incl. DiD scaffold (252 lines)</td></tr>
+<tr><td><code>solution/golden/golden_payments.csv (17,534)</code></td><td>Golden money truth (SUCCESS only, deduped)</td></tr>
+<tr><td><code>solution/golden/golden_calls.csv (90,000)</code></td><td>Golden effort truth (IST-normalised)</td></tr>
+<tr><td><code>solution/golden/golden_borrowers.csv (11,015)</code></td><td>Entity-resolved borrowers</td></tr>
+<tr><td><code>solution/golden/golden_agents.csv (1,000)</code></td><td>Entity-resolved agents</td></tr>
+<tr><td><code>solution/golden/monthly_kpi.csv + stats.json</code></td><td>Per-day/per-row truth table + machine-readable stats</td></tr>
+<tr><td><code>solution/build_golden.py + run_analysis.py + requirements.txt</code></td><td><b>Tracked, portable pipeline</b> (sole generator of golden + JSONs; relative paths / CRED_DATA_DIR)</td></tr>
+<tr><td><code>solution/analysis_notebook.ipynb (13 cells)</code></td><td><b>Real narrated notebook</b> (executes clean); <code>analysis_notebook.py</code> retained as legacy</td></tr>
+<tr><td><code>solution/DATA_QUALITY_REPORT.md</code></td><td><b>Standalone DQ deliverable</b> (inventory, methods, impact, open risks)</td></tr>
+<tr><td><code>solution/EXECUTIVE_MEMO_1PAGE.md + MEMO_APPENDIX.md</code></td><td><b>1-page CEO read</b> (plain English) + stats appendix; <code>memo.md</code> = full audit version</td></tr>
+<tr><td><code>solution/golden/counterfactual_did.json + sql/05_*</code></td><td><b>Executed PSM+DiD</b> (DiD -1.29pp, CI [-4.01pp,+1.40pp], 2717 pairs — null)</td></tr>
+<tr><td><code>solution/golden/forensic_h.json</code></td><td>Priority-flat test (7d 1.56-2.16%, p=0.345)</td></tr>
+<tr><td><code>solution/golden/stratified_uplift.json</code></td><td>Targeted-vs-never overall + MH-adjusted diff (−0.65pp, p=0.35) + 16 strata</td></tr>
+<tr><td><code>solution/golden/feb_mar_test.json + daily_recovery.csv</code></td><td>Feb-vs-Mar daily test (Welch/permutation/bootstrap, p≈0.93) + daily series</td></tr>
+<tr><td><b>This file</b></td><td><b>Viva report (all actions + logic + Q&A)</b></td></tr></table></section>
+
+<section class="card" id="s11"><h2>11 — Viva Q&A cheat sheet (24 × 2-line answers — 21–24 added per review)</h2>
+<table>
+<tr><td><b>1. Did you use Python to read the PDF?</b></td><td>Yes — <code class="inline">pypdf</code> for page count/meta + <code class="inline">pdfplumber</code> for clean 10-page text (§0 code). Reproducible, no manual copy.</td></tr>
+<tr><td><b>2. Is 11% real?</b></td><td>No. Raw +11.03% → per-day +0.29%, <b>Welch p=0.93, perm p=0.93, boot CI [−6.1%,+6.8%]</b> — not distinguishable from zero. Per-row +0.8%, funnel flat.</td></tr>
+<tr><td><b>3. Prove calendar effect.</b></td><td>Feb ₹170.14M/28=₹6.076M/d; Mar ₹188.91M/31=₹6.094M/d. 31/28−1 alone predicts +10.7%.</td></tr>
+<tr><td><b>4. Biggest DQ issue?</b></td><td>Entity collisions (borrowers 30.6k→11k, agents 30k→1k) + TXN reuse 4,297 + 50% timestamp inversions. Money impact −₹2.9 Cr.</td></tr>
+<tr><td><b>5. Why SUCCESS only?</b></td><td>FAILED/PENDING/REVERSED aren't cash. Including them overstates recovery and rewards retries.</td></tr>
+<tr><td><b>6. Why ignore payment_reference?</b></td><td>Same TXN on different accounts/amounts (e.g. TXN…0032 ×3). Not unique — payment_id is.</td></tr>
+<tr><td><b>7. Timezone handling?</b></td><td>Parse source tz → UTC → IST; bucket day/hour in IST. Stored strings showed no shift bug, but pipeline enforces it.</td></tr>
+<tr><td><b>8. Agent tenure?</b></td><td>MIN(joined_at) per agent_id; name has 10 values for 1,000 agents — unusable.</td></tr>
+<tr><td><b>9. PTP kept definition?</b></td><td>Validated cash within +7d of promised_date, not status flag (93.5% OPENs stale).</td></tr>
+<tr><td><b>10. Contact rate?</b></td><td>ANSWERED/deduped calls, IST day. Flat 19–20% — no dial improvement.</td></tr>
+<tr><td><b>11. Simpson's paradox here?</b></td><td>Overall +11% up but every stratum flat (per-day, per-row, funnel). Aggregate misleads.</td></tr>
+<tr><td><b>12. Survivorship bias?</b></td><td>Stale OPEN PTPs + lingering PAID/CLOSED inflate “success”; 6,656 never-targeted hidden from denominator.</td></tr>
+<tr><td><b>13. Selection bias?</b></td><td>Targeted pool non-random (22% never touched); compare per-eligible, not per-targeted.</td></tr>
+<tr><td><b>14. Attribution window?</b></td><td>7-day contact→payment; 30-day/last-touch over-credits Mar by ~3pp (more rows, more chance matches).</td></tr>
+<tr><td><b>15. Vendor change?</b></td><td>No — versions ~33% every month, all codes present. Rules out definition shift.</td></tr>
+<tr><td><b>16. Counterfactual design?</b></td><td>PSM + DiD (new-targeting vs matched legacy), parallel trends, placebo cutover, window sensitivity. Currently weak first stage → need prospective A/B.</td></tr>
+<tr><td><b>17. Why targeting over agents? (REVISED)</b></td><td>Not “untouched pool” (never 43.69% beats targeted 43.05%, p=0.35) — but <b>zero-signal scoring (H, p=0.345) + zero stratified lift (−0.65pp)</b> + 4,128 stale PTPs. Fix scoring via capped experiment; cheapest + reversible.</td></tr>
+<tr><td><b>18. ROI math? (REVISED — scenarios)</b></td><td>Empirical 0 (p=0.35); base <b>3–5% ≈ ₹3.8–6.3Cr/yr, 2–4×, BE 3–5mo (assumption)</b>; upside 8–12% ≈ ₹10–15Cr holdout-gated. Cost ₹1.2Cr + 50% split are <b>assumptions</b>. Old “6–9Cr/5–7×/65%” retired.</td></tr>
+<tr><td><b>19. Confidence? (REVISED)</b></td><td><b>High on flat</b> (per-day p≈0.93, targeted-never p≈0.35, priority p≈0.35); <b>low on any pre-holdout lift</b>. Cost/volume are estimates — say so.</td></tr>
+<tr><td><b>20. Production guard?</b></td><td>Per-day KPIs + PK lineage + 3-day re-state + z-score/flat-rate guards so next false +11% pages instead of ships.</td></tr>
+<tr><td><b>21. Never-targeted convert higher — doesn't that kill #4?</b></td><td>It kills “fruit” framing, not #4. MH-adjusted diff −0.65pp CI [−2.00pp,+0.70pp] says <i>current</i> targeting adds nothing — which is why we rebuild scoring + holdout rather than expand volume.</td></tr>
+<tr><td><b>22. Priority flat — what test?</b></td><td>Per-target 7d conversion 1–10: 1.56–2.16%, χ²=10.07 p=0.345; 30d also flat. No monotonic trend → no discrimination. Added as Forensic H.</td></tr>
+<tr><td><b>23. Feb-vs-Mar formal test?</b></td><td>Daily means t=0.085 p=0.932, perm p=0.931 (B=20k), boot CI [−6.09%,+6.77%]. Report “flat, p≈0.93”, not just “+0.29%”.</td></tr>
+<tr><td><b>24. ₹1.2Cr and 50% — measured?</b></td><td>No — commercial estimate + design split. Present as capped-experiment budget with kill-switch (&lt;3% at 4 wks), never same weight as per-day truth.</td></tr>
+</table></section>
+</main>
+<footer>Built with Python (pdf + pandas golden pipeline) · SQL repo + golden CSVs + dashboard + memo + architecture in <code>solution/</code> · Seed 42 · Period Jan–Aug 2026 (Aug partial excluded) · Restate March as +0.29%/day, p≈0.93 (flat). ROI is scenario-gated (base 3–5% assumption; upside holdout-gated).</footer>
+</body></html>
