@@ -1,0 +1,53 @@
+{
+  "design": "Mar cutover; treat=v2/v3-any, control=legacy/v1-only; pre=Jan-Feb ever-paid, post=Apr-May ever-paid; 1:1 PSM caliper 0.05",
+  "n_treat_pool": 2949,
+  "n_control_pool": 2717,
+  "n_pairs": 2717,
+  "caliper": 0.05,
+  "rates": {
+    "treat_pre": 0.14390872285609127,
+    "treat_post": 0.14059624585940375,
+    "control_pre": 0.14758925285241076,
+    "control_post": 0.15715863084284137
+  },
+  "did_pp": -0.012881854987118135,
+  "did_rel": -0.08815047144566589,
+  "boot_ci_pp": [
+    -0.04011777695988222,
+    0.013986013986013986
+  ],
+  "B": 10000,
+  "parallel_pre_trends": {
+    "treat_jan_feb_change": -0.012207527975584942,
+    "control_jan_feb_change": -0.0051527419948472625,
+    "diff": -0.0070547859807376795
+  },
+  "balance_smd": {
+    "dpd": {
+      "treat": 57.60029444239971,
+      "control": 56.99705557600294,
+      "smd": 0.011020496819957528
+    },
+    "outstanding_amount": {
+      "treat": 350606.8966396761,
+      "control": 343364.526499816,
+      "smd": 0.03581953858119851
+    },
+    "pre": {
+      "treat": 0.14390872285609127,
+      "control": 0.14758925285241076,
+      "smd": -0.010428955321271761
+    },
+    "jan": {
+      "treat": 0.07949944792050055,
+      "control": 0.07949944792050055,
+      "smd": 0.0
+    },
+    "feb": {
+      "treat": 0.06882591093117409,
+      "control": 0.07434670592565329,
+      "smd": -0.021412177238850697
+    }
+  },
+  "verdict": "null / weak first stage \u2014 CI spans zero; targeting change has no cleanly identified lift; prospective 50/50 holdout still required"
+}
