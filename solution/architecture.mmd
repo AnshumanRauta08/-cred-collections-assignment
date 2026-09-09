@@ -1,0 +1,33 @@
+flowchart TD
+    SRC["Sources: vendors / telephony / app / field<br/>UTC + Dubai + Kolkata tz"]
+    RAW["RAW<br/>immutable, partitioned by ingest_date"]
+    STG["STAGING<br/>typed, tz to IST, event_at_ist + event_date"]
+    CLN["CLEAN<br/>dedup on PK, FK validated"]
+    GLD["GOLDEN<br/>dim_borrower, dim_account<br/>fact_contact, fact_ptp, fact_payment"]
+    FEAT["FEATURE<br/>account-day features"]
+    MET["METRICS<br/>daily_kpi per-day normalized"]
+    DASH["DASHBOARD<br/>per-day + adjusted MoM"]
+
+    DQ["DQ checks<br/>dup 0, null 0, naive-tz 0<br/>orphan FK lt 0.1pct, lag lt 26h"]
+    WM["Incremental<br/>MERGE on PK + event_date<br/>watermark max event - 2d"]
+    LATE["Late data<br/>3-day re-state<br/>recorded_at vs event_at"]
+    BACK["Backfills<br/>idempotent full-partition overwrite"]
+    MON["Monitoring<br/>recovery z-score gt 3<br/>volume drop 20pct WoW"]
+
+    SRC --> RAW
+    RAW --> STG
+    STG --> CLN
+    CLN --> GLD
+    GLD --> FEAT
+    FEAT --> MET
+    MET --> DASH
+    DQ -. monitors .-> STG
+    DQ -. monitors .-> CLN
+    DQ -. monitors .-> MET
+    WM -. controls .-> STG
+    WM -. controls .-> CLN
+    LATE -. restates .-> MET
+    BACK -. overwrites .-> CLN
+    BACK -. overwrites .-> MET
+    MET --> MON
+    MON -. alerts .-> DASH
