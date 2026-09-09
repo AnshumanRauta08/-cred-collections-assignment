@@ -52,6 +52,11 @@
   /* feature-card */
   .tile{background:var(--s1);border:1px solid var(--hairline);border-radius:12px;padding:24px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);transition:background .15s ease,border-color .15s ease}
   .tile:hover{background:var(--s2);border-color:var(--hairline-strong)}
+  /* lane-1 motion: staggered fade-up reveals + count-ups (respects reduced-motion) */
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.visible{opacity:1;transform:none}
+  .tile.visible:hover{transform:translateY(-3px)}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important;transition:none}}
   .tile h3{margin:0 0 10px;font-size:13px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;color:var(--subtle)}
   .tile .big{font-size:22px;font-weight:500;line-height:1.25;letter-spacing:-0.4px;font-variant-numeric:tabular-nums}
   .tile .big .sm{font-size:14px;font-weight:400;color:var(--subtle);letter-spacing:0}
@@ -121,12 +126,12 @@
   <section class="section" id="forensics" aria-label="Tiles">
     <div class="section-head"><h2>Recovery truth &middot; Jan&ndash;Jul</h2><span>6 tiles &middot; per-day + per-row first</span></div>
     <div class="grid">
-      <div class="tile"><h3>T1 — Golden Recovery YTD</h3><div class="big">₹126.8 Cr <span class="sm">(Jan–Jul)</span></div><div class="sub">Golden SUCCESS <b>17,534</b> &bull; Raw <span class="mono">17,880 &minus; 346 dups (&minus;1.94%, ~₹2.9 Cr overstatement)</span>.<br>The only revenue number the CEO quotes.</div><span class="badge badge-success badge-dot">TRUTH</span></div>
+      <div class="tile"><h3>T1 — Golden Recovery YTD</h3><div class="big"><span data-count="126.8" data-decimals="1" data-prefix="₹" data-suffix=" Cr">₹126.8 Cr</span> <span class="sm">(Jan–Jul)</span></div><div class="sub">Golden SUCCESS <b>17,534</b> &bull; Raw <span class="mono">17,880 &minus; 346 dups (&minus;1.94%, ~₹2.9 Cr overstatement)</span>.<br>The only revenue number the CEO quotes.</div><span class="badge badge-success badge-dot">TRUTH</span></div>
       <div class="tile" title="Detail: Welch t=0.085 p=0.93; permutation p=0.93 (B=20k); bootstrap 95% CI [-6.1%,+6.8%]. Feb n=28 sd 0.73M; Mar n=31 sd 0.84M."><h3>T2 — True Growth (per-day)</h3><div class="big">March was flat</div><div class="sub">+0.29% per day — <b>statistically flat, not +11%</b>. The +11% is just February having fewer days.<br>Hover this tile for the formal test.</div><span class="badge">FLAT — not +11%</span><details><summary style="font-size:12px;color:var(--subtle);cursor:pointer">Test detail</summary><span class="mono" style="font-size:12px">₹6.076M/d Feb (28d) → ₹6.093M/d Mar (31d); p=0.93; CI [−6.1%,+6.8%]; Apr −4.2%/d; Jul +3.2%/d.</span></details></div>
-      <div class="tile"><h3>T3 — Efficiency per Row + per Hour</h3><div class="big">₹30,033 / row <span class="sm">&bull; ₹16,649 / hr</span></div><div class="sub">Feb <span class="mono">₹29,802</span> &rarr; Mar <span class="mono">₹30,033</span> (<b>+0.8% flat</b>). Rows <span class="mono">5,709 &rarr; 6,290 (+10.2% volume)</span>.<br><span class="mono">76,187</span> agent-hours Jan–Jul.</div><span class="badge">VOLUME WITHOUT LEVERAGE</span></div>
+      <div class="tile"><h3>T3 — Efficiency per Row + per Hour</h3><div class="big"><span data-count="30033" data-decimals="0" data-prefix="₹">₹30,033</span> / row <span class="sm">&bull; <span data-count="16649" data-decimals="0" data-prefix="₹">₹16,649</span> / hr</span></div><div class="sub">Feb <span class="mono">₹29,802</span> &rarr; Mar <span class="mono">₹30,033</span> (<b>+0.8% flat</b>). Rows <span class="mono">5,709 &rarr; 6,290 (+10.2% volume)</span>.<br><span class="mono">76,187</span> agent-hours Jan–Jul.</div><span class="badge">VOLUME WITHOUT LEVERAGE</span></div>
       <div class="tile" title="Detail: priority 1-10 seven-day conversion 1.56-2.16% (overall 1.83%), chi-square p=0.345 — no trend."><h3>T4 — Funnel Health</h3><div class="big">No improvement anywhere</div><div class="sub">Answer rates, promise-kept rates, and our priority ranking were all <b>flat — the ranking can't pick winners</b>.<br>Hover for the test.</div><span class="badge">FLAT</span><details><summary style="font-size:12px;color:var(--subtle);cursor:pointer">Test detail</summary><span class="mono" style="font-size:12px">Contact 19–20%; PTP-kept ~25%; priority 7d 1.56–2.16%, p=0.345 (Forensic H).</span></details></div>
-      <div class="tile"><h3>T5 — Field Outcome</h3><div class="big">Field PAID 16.32%</div><div class="sub"><span class="mono">4,080</span> PAID / <span class="mono">25,000</span> visits (~6 visits per PAID).<br>Hold as benchmark; don&rsquo;t expand field until A/B proves lift.</div><span class="badge">BENCHMARK</span></div>
-      <div class="tile" style="border-style:dashed" title="Detail: never-targeted 43.69% vs targeted 43.05% (diff -0.64pp, p=0.35, CI [-2.00pp,+0.70pp]; MH -0.65pp). Untouched is not proven fruit."><h3>T6 — Coverage Gap ⚠ Idea to test</h3><div class="big"><span class="mono">6,656</span> accounts never contacted</div><div class="sub">They convert <b>no worse</b> than contacted ones — so this is <b>an idea to test, not a prize already won</b>.<br>Hover for the comparison.</div><span class="badge">HYPOTHESIS — needs the holdout test</span><details><summary style="font-size:12px;color:var(--subtle);cursor:pointer">Comparison detail</summary><span class="mono" style="font-size:12px">Never 43.69% vs targeted 43.05% (p=0.35); fresh DPD Mar ₹73.6M→₹89.5M easy-mix.</span></details></div>
+      <div class="tile"><h3>T5 — Field Outcome</h3><div class="big">Field PAID <span data-count="16.32" data-decimals="2" data-suffix="%">16.32%</span></div><div class="sub"><span class="mono">4,080</span> PAID / <span class="mono">25,000</span> visits (~6 visits per PAID).<br>Hold as benchmark; don&rsquo;t expand field until A/B proves lift.</div><span class="badge">BENCHMARK</span></div>
+      <div class="tile" style="border-style:dashed" title="Detail: never-targeted 43.69% vs targeted 43.05% (diff -0.64pp, p=0.35, CI [-2.00pp,+0.70pp]; MH -0.65pp). Untouched is not proven fruit."><h3>T6 — Coverage Gap ⚠ Idea to test</h3><div class="big"><span class="mono" data-count="6656" data-decimals="0">6,656</span> accounts never contacted</div><div class="sub">They convert <b>no worse</b> than contacted ones — so this is <b>an idea to test, not a prize already won</b>.<br>Hover for the comparison.</div><span class="badge">HYPOTHESIS — needs the holdout test</span><details><summary style="font-size:12px;color:var(--subtle);cursor:pointer">Comparison detail</summary><span class="mono" style="font-size:12px">Never 43.69% vs targeted 43.05% (p=0.35); fresh DPD Mar ₹73.6M→₹89.5M easy-mix.</span></details></div>
     </div>
   </section>
 
@@ -153,8 +158,37 @@
 </div>
 
 <script>
-new Chart(document.getElementById('c1'),{type:'bar',data:{labels:['Feb','Mar','Apr','May','Jun','Jul'],datasets:[{label:'Raw MoM %',data:[-8.91,10.99,-7.66,4.83,-4.45,6.46],backgroundColor:'#62666d',borderRadius:4},{label:'Per-day MoM %',data:[0.61,0.29,-4.20,1.81,-1.54,3.21],type:'line',borderColor:'#5e6ad2',backgroundColor:'#5e6ad2',pointBackgroundColor:'#5e6ad2',pointBorderColor:'#5e6ad2',tension:.3,borderWidth:2,pointRadius:3}]},options:{plugins:{legend:{labels:{color:'#d0d6e0',boxWidth:12,font:{size:12}}}},scales:{x:{grid:{color:'#23252a'},ticks:{color:'#8a8f98',font:{size:12}}},y:{grid:{color:'#23252a'},ticks:{color:'#8a8f98',font:{size:12}}}}}});
-new Chart(document.getElementById('c2'),{type:'bar',data:{labels:['Raw SUCCESS','Dups removed','Golden SUCCESS','Feb rows (k)','Mar rows (k)'],datasets:[{label:'Count',data:[17880,-346,17534,5709,6290],backgroundColor:['#62666d','#8a8f98','#5e6ad2','#34343a','#d0d6e0'],borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#8a8f98',font:{size:11}}},y:{grid:{color:'#23252a'},ticks:{color:'#8a8f98',font:{size:12}}}}}});
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* staggered fade-up reveals */
+  var items = document.querySelectorAll('.hero,.tile,.card,.alert');
+  items.forEach(function(el,i){ el.classList.add('reveal'); el.style.transitionDelay = Math.min(i*70,420)+'ms'; });
+  function show(el){ el.classList.add('visible'); }
+  if(reduce || !('IntersectionObserver' in window)){ items.forEach(show); }
+  else{
+    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ show(e.target); io.unobserve(e.target); } }); },{threshold:0.12});
+    items.forEach(function(el){ io.observe(el); });
+  }
+  /* KPI count-ups (final values are the no-JS fallback text) */
+  function fmt(v,dec){ return v.toLocaleString('en-IN',{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+  function count(el){
+    var to=parseFloat(el.getAttribute('data-count')), dec=parseInt(el.getAttribute('data-decimals')||'0',10),
+        pre=el.getAttribute('data-prefix')||'', suf=el.getAttribute('data-suffix')||'';
+    if(reduce){ el.textContent = pre+fmt(to,dec)+suf; return; }
+    var dur=1300, t0=null;
+    function step(t){ if(!t0)t0=t; var p=Math.min((t-t0)/dur,1), e=1-Math.pow(1-p,3);
+      el.textContent = pre+fmt(to*e,dec)+suf; if(p<1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  }
+  var nums = document.querySelectorAll('[data-count]');
+  if(reduce || !('IntersectionObserver' in window)){ nums.forEach(count); }
+  else{
+    var io2 = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ count(e.target); io2.unobserve(e.target); } }); },{threshold:0.4});
+    nums.forEach(function(el){ io2.observe(el); });
+  }
+})();
+new Chart(document.getElementById('c1'),{type:'bar',data:{labels:['Feb','Mar','Apr','May','Jun','Jul'],datasets:[{label:'Raw MoM %',data:[-8.91,10.99,-7.66,4.83,-4.45,6.46],backgroundColor:'#62666d',borderRadius:4},{label:'Per-day MoM %',data:[0.61,0.29,-4.20,1.81,-1.54,3.21],type:'line',borderColor:'#5e6ad2',backgroundColor:'#5e6ad2',pointBackgroundColor:'#5e6ad2',pointBorderColor:'#5e6ad2',tension:.3,borderWidth:2,pointRadius:3}]},options:{animation:{duration:1100,easing:'easeOutQuart'},plugins:{legend:{labels:{color:'#d0d6e0',boxWidth:12,font:{size:12}}}},scales:{x:{grid:{color:'#23252a'},ticks:{color:'#8a8f98',font:{size:12}}},y:{grid:{color:'#23252a'},ticks:{color:'#8a8f98',font:{size:12}}}}}});
+new Chart(document.getElementById('c2'),{type:'bar',data:{labels:['Raw SUCCESS','Dups removed','Golden SUCCESS','Feb rows (k)','Mar rows (k)'],datasets:[{label:'Count',data:[17880,-346,17534,5709,6290],backgroundColor:['#62666d','#8a8f98','#5e6ad2','#34343a','#d0d6e0'],borderRadius:4}]},options:{animation:{duration:1100,easing:'easeOutQuart',delay:150},plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#8a8f98',font:{size:11}}},y:{grid:{color:'#23252a'},ticks:{color:'#8a8f98',font:{size:12}}}}}});
 </script>
 </body>
 </html>
